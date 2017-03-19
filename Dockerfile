@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
    subversion \
    unzip \
    wget \
-   zlib1g-dev 
+   zlib1g-dev
 
 RUN pip install \
    flask \
@@ -35,7 +35,7 @@ RUN git clone https://github.com/moses-smt/mosesdecoder
 RUN mkdir moses-models
 
 #  Giza
-RUN wget -O giza-pp.zip "http://github.com/moses-smt/giza-pp/archive/master.zip" 
+RUN wget -O giza-pp.zip "http://github.com/moses-smt/giza-pp/archive/master.zip"
 RUN unzip giza-pp.zip
 RUN rm giza-pp.zip
 RUN mv giza-pp-master giza-pp
@@ -95,10 +95,15 @@ RUN git clone https://github.com/vlall/moses-api
 #  Download sample model
 WORKDIR /home/moses/moses-models
 RUN wget http://www.statmt.org/moses/download/sample-models.tgz
-RUN tar xf sample-models.tgz 
+RUN tar xf sample-models.tgz
 RUN rm sample-models.tgz
 
 WORKDIR /home/moses/mosesdecoder
 #  COMPILE MOSES (Takes awhile...)
 #RUN ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j12
 #WORKDIR /home/moses/
+
+
+WORKDIR /home/moses/Downloads/moses-api
+
+CMD ["python","run_moses.py"]
