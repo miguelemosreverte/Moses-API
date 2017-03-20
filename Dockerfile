@@ -98,12 +98,11 @@ RUN wget http://www.statmt.org/moses/download/sample-models.tgz
 RUN tar xf sample-models.tgz
 RUN rm sample-models.tgz
 
+#  Compile Moses if it has not been yet compiled
 WORKDIR /home/moses/mosesdecoder
-#  COMPILE MOSES (Takes awhile...)
-#RUN ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j12
-#WORKDIR /home/moses/
+RUN if [ ! -d /home/moses/bin/ ]; then ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j12;fi
 
+#  Start service
+CMD ["python","/home/moses/Downloads/moses-api/run_moses.py"]
 
-WORKDIR /home/moses/Downloads/moses-api
-
-CMD ["python","run_moses.py"]
+WORKDIR /home/moses/
