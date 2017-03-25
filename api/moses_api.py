@@ -21,7 +21,7 @@ def translate(text):
     """
     Run translation model using config
     """
-    with open('/home/moses/Downloads/moses-api/config.yaml', 'r') as f:
+    with open('/home/moses/Downloads/config.yaml', 'r') as f:
         doc = yaml.load(f)
     fileIn = doc['sample-models']['in']
     fileOut = doc['sample-models']['out']
@@ -45,7 +45,7 @@ def translate(text):
             "URL": request.host_url.rstrip('/').decode().encode('utf8'),
             "INPUT": text.encode('utf8'),
             "INPUT_SIZE": len(text.encode('utf8')),
-            "INPUT_PATH": str(fileIn),            
+            "INPUT_PATH": str(fileIn),
             "OUTPUT": translatedText.encode('utf8').rstrip(),
             "OUTPUT_SIZE": len(translatedText.encode('utf8')),
             "OUTPUT_PATH": str(fileOut),
@@ -55,10 +55,10 @@ def translate(text):
 
 @app.route("/", methods=['GET'])
 def instructions():
-    return 'The Moses API is working! Try a GET request with text.\n'
+    return 'The Moses API is working! Try a GET requadasasdsest with text.\n'
 
 
-@app.route("/<text>", methods=['GET'])
+@app.route("/Translate/<text>", methods=['GET'])
 def user_get(text):
     """
     Translate text

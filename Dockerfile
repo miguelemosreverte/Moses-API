@@ -89,8 +89,8 @@ RUN make test
 RUN make install
 
 #  Get Flask API
-WORKDIR /home/moses/Downloads
-RUN git clone https://github.com/vlall/moses-api
+#WORKDIR /home/moses/Downloads
+#RUN git clone https://github.com/miguelemosreverte/TTT_web
 
 #  Download sample model
 WORKDIR /home/moses/moses-models
@@ -102,7 +102,9 @@ RUN rm sample-models.tgz
 WORKDIR /home/moses/mosesdecoder
 RUN if [ ! -d /home/moses/bin/ ]; then ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j12;fi
 
+ADD  . /home/moses/Downloads
+
 #  Start service
-CMD ["python","/home/moses/Downloads/moses-api/run_moses.py"]
+CMD ["python","/home/moses/Downloads/run_moses.py"]
 
 WORKDIR /home/moses/
