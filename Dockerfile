@@ -101,10 +101,16 @@ RUN rm sample-models.tgz
 #  Compile Moses if it has not been yet compiled
 WORKDIR /home/moses/mosesdecoder
 RUN if [ ! -d /home/moses/bin/ ]; then ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j12;fi
+WORKDIR /home/moses/
 
+#  Add local files to the container
 ADD  . /home/moses/Downloads
+
+#create folder for the temporal files
+RUN mkdir /home/moses/temp
+#create folder for the user created language models
+RUN mkdir /home/moses/language_models
+
 
 #  Start service
 CMD ["python","/home/moses/Downloads/run_moses.py"]
-
-WORKDIR /home/moses/

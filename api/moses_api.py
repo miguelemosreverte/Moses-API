@@ -6,77 +6,69 @@ from werkzeug import secure_filename
 import codecs
 import json
 import time
+import os
+from TTT.main import TTT
 
 app = FlaskAPI(__name__)
 ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
 
+ttt = TTT()
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-def translate(text):
-    start_time = time.time()
-    """
-    Run translation model using config
-    """
-    with open('/home/moses/Downloads/config.yaml', 'r') as f:
-        doc = yaml.load(f)
-    fileIn = doc['sample-models']['in']
-    fileOut = doc['sample-models']['out']
-    homeDir = doc['sample-models']['homeDir']
-    runCommand = doc['sample-models']['command']
-    status = 'Files successfully read'
-    subprocess.call(['rm %s && rm %s' % (fileIn, fileOut)], shell=True)
-    text8 = text.encode('utf8')
-    inputFile = open(fileIn, 'w')
-    inputFile.write(text8 + '\n')
-    inputFile.close()
-    subprocess.call([runCommand], cwd=homeDir, shell=True)
-    readTranslate = open(fileOut, 'r')
-    translatedText = readTranslate.read().decode('utf8')
-    readTranslate.close()
-    return {
-            "STATUS": status,
-            "LAN": 'N/A',
-            "MODEL": str(homeDir),
-            "CMD": str(runCommand),
-            "URL": request.host_url.rstrip('/').decode().encode('utf8'),
-            "INPUT": text.encode('utf8'),
-            "INPUT_SIZE": len(text.encode('utf8')),
-            "INPUT_PATH": str(fileIn),
-            "OUTPUT": translatedText.encode('utf8').rstrip(),
-            "OUTPUT_SIZE": len(translatedText.encode('utf8')),
-            "OUTPUT_PATH": str(fileOut),
-            "DURATION": '%.3f seconds' % (time.time() - start_time)
-    }
+def translate(text, language_model_name):
+    UNTRANSLATED_FILEPATH = "/home/moses/temp/Untranslated.txt"
+    with open(UNTRANSLATED_FILEPATH, "w") as f:
+        f.write(text.encode('utf-8'))
+    return ttt._machine_translation(UNTRANSLATED_FILEPATH)
 
 
-@app.route("/", methods=['GET'])
-def instructions():
-    return 'The Moses API is working! Try a GET requadasasdsest with text.\n'
+@app.route("/PrepareCorpusTest", methods=['GET'])
+def preparation():
+    source='/home/moses/Downloads/api/news-commentary-v8.de-en.en'
+    target='/home/moses/Downloads/api/news-commentary-v8.de-en.de'
+    return ttt._prepare_corpus("/home/moses/language_models","en","de",source,target,target)
 
+@app.route("/Train", methods=['GET'])
+def training():
+    return ttt._train()
 
 @app.route("/Translate/<text>", methods=['GET'])
 def user_get(text):
     """
     Translate text
     """
-    text = translate(text.decode('utf8'))
+    text = translate(text.encode('utf8').decode('utf8'), "pepe5")
     return text
 
+@app.route("/PrepareCorpus", methods=['POST', 'PUT'])
+def uploadCorpus():
+    """
+    PreparesCorpus
+    """
 
-@app.route("/upload", methods=['POST', 'PUT'])
-def upload():
-    """
-    Tranlsate file
-    """
-    file = request.files['name']
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        text = file.read().decode('utf8')
-        text = translate(text)
-        return text
+    LM_FILEPATH = "/home/moses/temp/LanguageModel.txt"
+    TM_FILEPATH = "/home/moses/temp/TranslationModel.txt"
+
+    TM = request.form['TM']
+    LM = request.form['LM']
+    source_lang = request.form['source_lang']
+    target_lang = request.form['target_lang']
+    LM_name = request.form['LM_name']
+
+    if (TM and LM and source_lang and target_lang and LM_name):
+
+        with open(LM_FILEPATH, "w") as f:
+            f.write(TM.encode('utf-8'))
+        with open(TM_FILEPATH, "w") as f:
+            f.write(LM.encode('utf-8'))
+
+        newpath = '/home/moses/language_models/' + LM_name
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+        return ttt._prepare_corpus(newpath,source_lang,target_lang,LM_FILEPATH,TM_FILEPATH,TM_FILEPATH)
     else:
         return ('Error reading file...\n')
