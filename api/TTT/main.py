@@ -329,8 +329,7 @@ class TTT():
             try:
                 with open(training, "r") as f:
                    output += "\n" + f.read()
-            except IOError:
-                output += "Error. Unsuccessful when attempting to create moses.ini"
+            except IOError:pass
 
             # Set output to the output label.
         else:
