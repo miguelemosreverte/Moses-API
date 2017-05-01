@@ -63,3 +63,6 @@ target/
 
 # If you want to ignore the config...
 # config.yaml
+
+#ignore the moses config
+moses.config
