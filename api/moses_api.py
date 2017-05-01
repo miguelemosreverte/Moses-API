@@ -22,8 +22,8 @@ def translate(text, language_model_name):
 
 @app.route("/PrepareCorpusTest", methods=['GET'])
 def preparation():
-    source='/home/moses/Downloads/api/news-commentary-v8.de-en.en'
-    target='/home/moses/Downloads/api/news-commentary-v8.de-en.de'
+    source='/home/moses/Downloads/api/news-commentary-v8.de-en.en.txt'
+    target='/home/moses/Downloads/api/news-commentary-v8.de-en.de.txt'
     return ttt._prepare_corpus("/home/moses/language_models","en","de",source,target,target)
 
 @app.route("/Train", methods=['GET'])
