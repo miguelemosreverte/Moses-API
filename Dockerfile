@@ -3,6 +3,10 @@ MAINTAINER Vishal Lall "vishal.lall@caci.com"
 LABEL Description="Install Moses SMT API" Version="1.2"
 EXPOSE 5000
 
+COPY make-swap.sh /usr/bin/make-swap
+ENV SWAPSIZE=4096 SWAPFILE=/var/lib/swap.img
+CMD ["/usr/bin/make-swap"]
+
 RUN apt-get update && apt-get install -y \
    automake \
    build-essential \
@@ -100,7 +104,7 @@ RUN rm sample-models.tgz
 
 #  Compile Moses if it has not been yet compiled
 WORKDIR /home/moses/mosesdecoder
-RUN if [ ! -d /home/moses/bin/ ]; then ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j12;fi
+RUN if [ ! -d /home/moses/bin/ ]; then ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j1;fi
 WORKDIR /home/moses/
 
 #  Add local files to the container
