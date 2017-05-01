@@ -1,4 +1,5 @@
-from flask.ext.api import FlaskAPI
+from flask import request
+from flask_api import FlaskAPI
 import subprocess
 import os
 from TTT.main import TTT
