@@ -1,3 +1,3 @@
 [submodule "TTT"]
-	path = TTT
+	path = api/TTT
 	url = https://github.com/miguelemosreverte/TTT
