@@ -1,3 +1,6 @@
 [submodule "TTT"]
 	path = api/TTT
 	url = https://github.com/miguelemosreverte/TTT
+[submodule "api/TTT"]
+	path = api/TTT
+	url = https://github.com/miguelemosreverte/TTT
