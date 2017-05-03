@@ -1,6 +1,6 @@
 
 import os, subprocess
-from TTT.main import TTT
+from TTT.main import *
 
 def install(package):
     """@brief     Imports modules and installs them if they are not."""
