@@ -1,8 +1,19 @@
+
+import os, subprocess
+from TTT.main import TTT
+
+def install(package):
+    """@brief     Imports modules and installs them if they are not."""
+    import importlib
+    try:
+        importlib.import_module(package)
+    except ImportError:
+        pip.main(['install', package])
+        
+install('Flask')
+install('Flask-API')
 from flask import request
 from flask_api import FlaskAPI
-import subprocess
-import os
-from TTT.main import TTT
 
 app = FlaskAPI(__name__)
 ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
