@@ -1,19 +1,8 @@
-
-import os, subprocess
-from TTT.main import *
-
-def install(package):
-    """@brief     Imports modules and installs them if they are not."""
-    import importlib
-    try:
-        importlib.import_module(package)
-    except ImportError:
-        pip.main(['install', package])
-        
-install('Flask')
-install('Flask-API')
 from flask import request
 from flask_api import FlaskAPI
+import subprocess
+import os
+from TTT.main import TTT
 
 app = FlaskAPI(__name__)
 ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
@@ -25,7 +14,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-def translate(text, language_model_name):
+def translate(text):
     UNTRANSLATED_FILEPATH = "/home/moses/temp/Untranslated.txt"
     with open(UNTRANSLATED_FILEPATH, "w") as f:
         f.write(text.encode('utf-8'))
@@ -38,16 +27,29 @@ def preparation():
     target='/home/moses/Downloads/api/news-commentary-v8.de-en.de.txt'
     return ttt._prepare_corpus("/home/moses/language_models","en","de",source,target,target)
 
+@app.route("/GetAllAvailableLanguageModelNames", methods=['GET'])
+def get_dir_listing():
+    d = "/home/moses/language_models/'"
+    return [os.path.join(d,o) for o in os.listdir(d) if os.path.isdir(os.path.join(d,o))]
+
 @app.route("/Train", methods=['GET'])
 def training():
     return ttt._train()
+
+@app.route("/SetLM/<text>", methods=['GET'])
+def setLM():
+    """
+    Changes the Language Model to be used by TTT
+    """
+    ttt.language_model_name = language_model_name
+    return ttt.language_model_name
 
 @app.route("/Translate/<text>", methods=['GET'])
 def user_get(text):
     """
     Translate text
     """
-    text = translate(text.encode('utf8').decode('utf8'), "pepe5")
+    text = translate(text.encode('utf8').decode('utf8'))
     return text
 
 @app.route("/PrepareCorpus", methods=['POST', 'PUT'])
