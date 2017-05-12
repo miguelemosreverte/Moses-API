@@ -29,7 +29,7 @@ def preparation():
 
 @app.route("/GetAllAvailableLanguageModelNames", methods=['GET'])
 def get_dir_listing():
-    d = "/home/moses/language_models/'"
+    d = "/home/moses/language_models/"
     return [os.path.join(d,o) for o in os.listdir(d) if os.path.isdir(os.path.join(d,o))]
 
 @app.route("/Train", methods=['GET'])
