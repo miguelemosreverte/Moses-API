@@ -9,6 +9,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
 
 ttt = TTT()
 
+LM_DIR = "/home/moses/language_models/"
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -29,19 +30,20 @@ def preparation():
 
 @app.route("/GetAllAvailableLanguageModelNames", methods=['GET'])
 def get_dir_listing():
-    d = "/home/moses/language_models/"
-    return [os.path.join(d,o) for o in os.listdir(d) if os.path.isdir(os.path.join(d,o))]
+    return [o for o in os.listdir(LM_DIR) if os.path.isdir(os.path.join(LM_DIR,o))]
+
 
 @app.route("/Train", methods=['GET'])
 def training():
     return ttt._train()
 
-@app.route("/SetLM/<text>", methods=['GET'])
-def setLM():
+@app.route("/SetLM/<language_model_name>", methods=['GET'])
+def setLM(language_model_name):
     """
     Changes the Language Model to be used by TTT
     """
-    ttt.language_model_name = language_model_name
+    #TODO find out why there is always a closing brace in the incomming message
+    ttt.language_model_name = language_model_name.replace('}','')
     return ttt.language_model_name
 
 @app.route("/Translate/<text>", methods=['GET'])
@@ -84,3 +86,21 @@ def uploadCorpus():
         return ttt._prepare_corpus(newpath,source_lang,target_lang,TM_source_FILEPATH,TM_target_FILEPATH,LM_FILEPATH)
     else:
         return ('Error reading file...\n')
+
+
+@app.route("/Evaluate", methods=['POST','PUT'])
+def evaluate():
+
+    WER = request.form.get('WER') != None
+    PER = request.form.get('PER') != None
+    HTER = request.form.get('HTER') != None
+    BLEU = request.form.get('BLEU') != None
+    BLEU2GRAM = request.form.get('BLEU2GRAM') != None
+    BLEU3GRAM = request.form.get('BLEU3GRAM') != None
+    BLEU4GRAM = request.form.get('BLEU4GRAM') != None
+
+    UneditedMT = request.form['UneditedMT']
+    EditedMT = request.form['EditedMT']
+    #checkbox_indexes = [WER,PER,HTER, GTM, BLEU,BLEU2GRAM,BLEU3GRAM,BLEU4GRAM]
+
+    return ttt.evaluate([WER,PER,HTER,BLEU,BLEU2GRAM,BLEU3GRAM,BLEU4GRAM],UneditedMT.encode('utf-8'),EditedMT.encode('utf-8'))
