@@ -1,7 +1,9 @@
-from flask import request
+from flask import request, send_file
 from flask_api import FlaskAPI
 import subprocess
+import zipfile
 import os
+import io
 from TTT.main import TTT
 
 app = FlaskAPI(__name__)
@@ -16,6 +18,7 @@ def allowed_file(filename):
 
 
 def translate(text):
+    #FIX WATCH OUT fOR CONCURRENCY: USE MEMORY INSTEAD OF FIXED FILENAMES
     UNTRANSLATED_FILEPATH = "/home/moses/temp/Untranslated.txt"
     with open(UNTRANSLATED_FILEPATH, "w") as f:
         f.write(text.encode('utf-8'))
@@ -42,9 +45,34 @@ def setLM(language_model_name):
     """
     Changes the Language Model to be used by TTT
     """
-    #TODO find out why there is always a closing brace in the incomming message
-    ttt.language_model_name = language_model_name.replace('}','')
+    ttt.language_model_name = language_model_name
     return ttt.language_model_name
+
+
+@app.route("/GetLM/<language_model_name>", methods=['GET'])
+def getLM(language_model_name):
+    """
+    Asks for the zip file of the Language Model to be used by TTT
+    """
+
+
+
+    def zipdir(path, ziph):
+
+        lenDirPath = len('/home/moses/language_models/')
+        # ziph is zipfile handle
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                filePath = os.path.join(root, file)
+                ziph.write(filePath , filePath[lenDirPath :] )
+
+    memory_file = io.BytesIO()
+    zf = zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED)
+    zipdir('/home/moses/language_models/' + language_model_name, zf)
+    zf.close()
+    memory_file.seek(0)
+
+    return send_file(memory_file, attachment_filename=language_model_name+'.zip', as_attachment=True)
 
 @app.route("/Translate/<text>", methods=['GET'])
 def user_get(text):
