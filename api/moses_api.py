@@ -7,22 +7,15 @@ import io
 from TTT.main import TTT
 
 app = FlaskAPI(__name__)
-ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
-
 ttt = TTT()
 
-LM_DIR = "/home/moses/language_models/"
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-
-def translate(text):
+def translate(language_model_name,text):
     #FIX WATCH OUT fOR CONCURRENCY: USE MEMORY INSTEAD OF FIXED FILENAMES
     UNTRANSLATED_FILEPATH = "/home/moses/temp/Untranslated.txt"
     with open(UNTRANSLATED_FILEPATH, "w") as f:
         f.write(text.encode('utf-8'))
-    return ttt._machine_translation(UNTRANSLATED_FILEPATH)
+    return ttt._machine_translation(language_model_name,UNTRANSLATED_FILEPATH)
 
 
 @app.route("/PrepareCorpusTest", methods=['GET'])
@@ -33,20 +26,13 @@ def preparation():
 
 @app.route("/GetAllAvailableLanguageModelNames", methods=['GET'])
 def get_dir_listing():
+    LM_DIR = "/home/moses/language_models/"
     return [o for o in os.listdir(LM_DIR) if os.path.isdir(os.path.join(LM_DIR,o))]
 
 
-@app.route("/Train", methods=['GET'])
-def training():
-    return ttt._train()
-
-@app.route("/SetLM/<language_model_name>", methods=['GET'])
-def setLM(language_model_name):
-    """
-    Changes the Language Model to be used by TTT
-    """
-    ttt.language_model_name = language_model_name
-    return ttt.language_model_name
+@app.route("/Train/<language_model_name>", methods=['GET'])
+def training(language_model_name):
+    return ttt._train(language_model_name)
 
 
 @app.route("/GetLM/<language_model_name>", methods=['GET'])
@@ -54,9 +40,6 @@ def getLM(language_model_name):
     """
     Asks for the zip file of the Language Model to be used by TTT
     """
-
-
-
     def zipdir(path, ziph):
 
         lenDirPath = len('/home/moses/language_models/')
@@ -74,13 +57,14 @@ def getLM(language_model_name):
 
     return send_file(memory_file, attachment_filename=language_model_name+'.zip', as_attachment=True)
 
-@app.route("/Translate/<text>", methods=['GET'])
-def user_get(text):
+@app.route("/Translate", methods=['POST'])
+def translate_post():
     """
     Translate text
     """
-    text = translate(text.encode('utf8').decode('utf8'))
-    return text
+    language_model_name = request.form.get('LM_name')
+    text = request.form.get('text')
+    return translate(language_model_name,text.encode('utf8').decode('utf8'))
 
 @app.route("/PrepareCorpus", methods=['POST', 'PUT'])
 def uploadCorpus():
@@ -129,6 +113,5 @@ def evaluate():
 
     UneditedMT = request.form['UneditedMT']
     EditedMT = request.form['EditedMT']
-    #checkbox_indexes = [WER,PER,HTER, GTM, BLEU,BLEU2GRAM,BLEU3GRAM,BLEU4GRAM]
 
     return ttt.evaluate([WER,PER,HTER,BLEU,BLEU2GRAM,BLEU3GRAM,BLEU4GRAM],UneditedMT.encode('utf-8'),EditedMT.encode('utf-8'))
