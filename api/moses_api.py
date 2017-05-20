@@ -93,7 +93,7 @@ def evaluate():
     BLEU3GRAM = request.form.get('BLEU3GRAM') != None
     BLEU4GRAM = request.form.get('BLEU4GRAM') != None
 
-    UneditedMT = request.form['UneditedMT']
-    EditedMT = request.form['EditedMT']
+    UneditedMT = request.form['UneditedMT'].encode('utf-8')
+    EditedMT = request.form['EditedMT'].encode('utf-8')
 
-    return ttt.evaluate([WER,PER,HTER,BLEU,BLEU2GRAM,BLEU3GRAM,BLEU4GRAM],UneditedMT.encode('utf-8'),EditedMT.encode('utf-8'))
+    return ttt.evaluate([WER,PER,HTER,BLEU,BLEU2GRAM,BLEU3GRAM,BLEU4GRAM],UneditedMT,EditedMT)
