@@ -11,11 +11,7 @@ ttt = TTT()
 
 
 def translate(language_model_name,text):
-    #FIX WATCH OUT fOR CONCURRENCY: USE MEMORY INSTEAD OF FIXED FILENAMES
-    UNTRANSLATED_FILEPATH = "/home/moses/temp/Untranslated.txt"
-    with open(UNTRANSLATED_FILEPATH, "w") as f:
-        f.write(text.encode('utf-8'))
-    return ttt._machine_translation(language_model_name,UNTRANSLATED_FILEPATH)
+    return ttt._machine_translation(language_model_name,text)
 
 
 @app.route("/PrepareCorpusTest", methods=['GET'])
