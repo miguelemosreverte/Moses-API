@@ -22,9 +22,13 @@ def preparation():
 
 @app.route("/GetAllAvailableLanguageModelNames", methods=['GET'])
 def get_dir_listing():
-    LM_DIR = "/home/moses/language_models/"
+    LM_DIR = ttt.lm_dir_persistent
     return [o for o in os.listdir(LM_DIR) if os.path.isdir(os.path.join(LM_DIR,o))]
 
+
+@app.route("/GetAvailableLanguages", methods=['GET'])
+def get_available_languages():
+    return ttt.get_available_languages()
 
 @app.route("/Train/<language_model_name>/<source_lang>/<target_lang>", methods=['GET'])
 def training(language_model_name, source_lang, target_lang):
@@ -67,8 +71,6 @@ def uploadCorpus():
     """
     PreparesCorpus
     """
-
-
     TM_source = request.form['TM_source']
     TM_target = request.form['TM_target']
     LM = request.form['LM']
@@ -76,10 +78,7 @@ def uploadCorpus():
     target_lang = request.form['target_lang']
     LM_name = request.form['LM_name']
 
-    if (TM_source and TM_target and LM and source_lang and target_lang and LM_name):
-        return ttt._prepare_corpus(LM_name,source_lang,target_lang,TM_source,TM_target,LM)
-    else:
-        return ('Error reading file...\n')
+    return ttt._prepare_corpus(LM_name,source_lang,target_lang,TM_source,TM_target,LM)
 
 
 @app.route("/Evaluate", methods=['POST','PUT'])
