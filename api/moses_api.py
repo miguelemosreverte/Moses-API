@@ -18,7 +18,7 @@ def translate(language_model_name,text):
 def preparation():
     source='/home/moses/Downloads/api/news-commentary-v8.de-en.en.txt'
     target='/home/moses/Downloads/api/news-commentary-v8.de-en.de.txt'
-    return ttt._prepare_corpus("/home/moses/language_models","en","de",source,target,target)
+    return ttt._prepare_corpus("en_to_de","en","de",source,target,target)
 
 @app.route("/GetAllAvailableLanguageModelNames", methods=['GET'])
 def get_dir_listing():
@@ -26,9 +26,9 @@ def get_dir_listing():
     return [o for o in os.listdir(LM_DIR) if os.path.isdir(os.path.join(LM_DIR,o))]
 
 
-@app.route("/Train/<language_model_name>", methods=['GET'])
-def training(language_model_name):
-    return ttt._train(language_model_name)
+@app.route("/Train/<language_model_name>/<source_lang>/<target_lang>", methods=['GET'])
+def training(language_model_name, source_lang, target_lang):
+    return ttt._train(language_model_name, source_lang, target_lang)
 
 
 @app.route("/GetLM/<language_model_name>", methods=['GET'])
@@ -68,9 +68,6 @@ def uploadCorpus():
     PreparesCorpus
     """
 
-    LM_FILEPATH = "/home/moses/temp/LanguageModel.txt"
-    TM_source_FILEPATH = "/home/moses/temp/TranslationModel_source.txt"
-    TM_target_FILEPATH = "/home/moses/temp/TranslationModel_target.txt"
 
     TM_source = request.form['TM_source']
     TM_target = request.form['TM_target']
@@ -80,18 +77,7 @@ def uploadCorpus():
     LM_name = request.form['LM_name']
 
     if (TM_source and TM_target and LM and source_lang and target_lang and LM_name):
-
-        with open(LM_FILEPATH, "w") as f:
-            f.write(LM.encode('utf-8'))
-        with open(TM_source_FILEPATH, "w") as f:
-            f.write(TM_source.encode('utf-8'))
-        with open(TM_target_FILEPATH, "w") as f:
-            f.write(TM_target.encode('utf-8'))
-
-        newpath = '/home/moses/language_models/' + LM_name
-        if not os.path.exists(newpath):
-            os.makedirs(newpath)
-        return ttt._prepare_corpus(newpath,source_lang,target_lang,TM_source_FILEPATH,TM_target_FILEPATH,LM_FILEPATH)
+        return ttt._prepare_corpus(LM_name,source_lang,target_lang,TM_source,TM_target,LM)
     else:
         return ('Error reading file...\n')
 
